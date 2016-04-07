@@ -182,8 +182,10 @@ char const *_al_gl_error_string(GLenum e)
       ERR(GL_INVALID_ENUM)
       ERR(GL_INVALID_VALUE)
       ERR(GL_INVALID_OPERATION)
+#ifndef ALLEGRO_CFG_OPENGLES2_ONLY
       ERR(GL_STACK_OVERFLOW)
       ERR(GL_STACK_UNDERFLOW)
+#endif
       ERR(GL_OUT_OF_MEMORY)
 #ifdef ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE
       ERR(GL_INVALID_FRAMEBUFFER_OPERATION)
@@ -458,6 +460,7 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
           IS_OPENGLES /* FIXME */) {
          post_generate_mipmap = true;
       }
+#ifndef ALLEGRO_CFG_OPENGLES2_ONLY
       else {
          glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
           e = glGetError();
@@ -466,6 +469,7 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
                             ogl_bitmap->texture, _al_gl_error_string(e));
           }
       }
+#endif
    }
 
    /* If there's unused space around the bitmap, we need to clear it
@@ -719,7 +723,7 @@ static void ogl_flip_blocks(ALLEGRO_LOCKED_REGION *lr, int wc, int hc)
 static ALLEGRO_LOCKED_REGION *ogl_lock_compressed_region(ALLEGRO_BITMAP *bitmap,
    int x, int y, int w, int h, int flags)
 {
-#if !defined ALLEGRO_ANDROID && !defined ALLEGRO_IPHONE
+#if !defined ALLEGRO_ANDROID && !defined ALLEGRO_IPHONE && !defined ALLEGRO_UBUNTU_TOUCH
    ALLEGRO_BITMAP_EXTRA_OPENGL *const ogl_bitmap = bitmap->extra;
    ALLEGRO_DISPLAY *disp;
    ALLEGRO_DISPLAY *old_disp = NULL;
@@ -832,8 +836,9 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_compressed_region(ALLEGRO_BITMAP *bitmap,
          ok = false;
       }
    }
-
+#ifndef ALLEGRO_CFG_OPENGLES2_ONLY
    glPopClientAttrib();
+#endif
 
    if (old_disp != NULL) {
       _al_set_current_display_only(old_disp);
@@ -1115,10 +1120,10 @@ void al_remove_opengl_fbo(ALLEGRO_BITMAP *bitmap)
    ALLEGRO_DEBUG("Deleting FBO: %u\n", ogl_bitmap->fbo_info->fbo);
 
    if (ANDROID_PROGRAMMABLE_PIPELINE(al_get_current_display())) {
-      glDeleteFramebuffers(1, &ogl_bitmap->fbo_info->fbo);
+      glDeleteFramebuffersEXT(1, &ogl_bitmap->fbo_info->fbo);
    }
    else {
-      glDeleteFramebuffersEXT(1, &ogl_bitmap->fbo_info->fbo);
+      glDeleteFramebuffers(1, &ogl_bitmap->fbo_info->fbo);
    }
    ogl_bitmap->fbo_info->fbo = 0;
 

@@ -43,6 +43,8 @@
    #include "allegro5/platform/alosxcfg.h"
 #elif defined ALLEGRO_ANDROID
    #include "allegro5/platform/alandroidcfg.h"
+#elif defined ALLEGRO_MIR
+   #include "allegro5/platform/almircfg.h"
 #elif defined ALLEGRO_RASPBERRYPI
    #include "allegro5/platform/alraspberrypicfg.h"
 #elif defined ALLEGRO_UNIX

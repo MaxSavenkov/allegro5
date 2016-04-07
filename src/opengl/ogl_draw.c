@@ -125,10 +125,12 @@ static void vert_ptr_on(ALLEGRO_DISPLAY *display, int n, GLint t, int stride, vo
       }
 #endif
    }
+#ifndef ALLEGRO_CFG_OPENGLES2_ONLY
    else {
       glEnableClientState(GL_VERTEX_ARRAY);
       glVertexPointer(n, t, stride, v);
    }
+#endif
 }
 
 static void vert_ptr_off(ALLEGRO_DISPLAY *display)
@@ -140,9 +142,11 @@ static void vert_ptr_off(ALLEGRO_DISPLAY *display)
       }
 #endif
    }
+#ifndef ALLEGRO_CFG_OPENGLES2_ONLY
    else {
       glDisableClientState(GL_VERTEX_ARRAY);
    }
+#endif
 }
 
 static void color_ptr_on(ALLEGRO_DISPLAY *display, int n, GLint t, int stride, void *v)
@@ -155,10 +159,12 @@ static void color_ptr_on(ALLEGRO_DISPLAY *display, int n, GLint t, int stride, v
       }
 #endif
    }
+#ifndef ALLEGRO_CFG_OPENGLES2_ONLY
    else {
       glEnableClientState(GL_COLOR_ARRAY);
       glColorPointer(n, t, stride, v);
    }
+#endif
 }
 
 static void color_ptr_off(ALLEGRO_DISPLAY *display)
@@ -170,9 +176,11 @@ static void color_ptr_off(ALLEGRO_DISPLAY *display)
       }
 #endif
    }
+#ifndef ALLEGRO_CFG_OPENGLES2_ONLY
    else {
       glDisableClientState(GL_COLOR_ARRAY);
    }
+#endif
 }
 
 static void tex_ptr_on(ALLEGRO_DISPLAY *display, int n, GLint t, int stride, void *v)
@@ -185,10 +193,12 @@ static void tex_ptr_on(ALLEGRO_DISPLAY *display, int n, GLint t, int stride, voi
       }
 #endif
    }
+#ifndef ALLEGRO_CFG_OPENGLES2_ONLY
    else {
       glEnableClientState(GL_TEXTURE_COORD_ARRAY);
       glTexCoordPointer(n, t, stride, v);
    }
+#endif
 }
 
 static void tex_ptr_off(ALLEGRO_DISPLAY *display)
@@ -200,9 +210,11 @@ static void tex_ptr_off(ALLEGRO_DISPLAY *display)
       }
 #endif
    }
+#ifndef ALLEGRO_CFG_OPENGLES2_ONLY
    else {
       glDisableClientState(GL_TEXTURE_COORD_ARRAY);
    }
+#endif
 }
 
 /* There's a very nasty bug in Android 2.1 that makes glClear cause
@@ -241,10 +253,12 @@ static void ogl_clear_android_2_1_workaround(ALLEGRO_DISPLAY *d,
    vert_ptr_on(d, 2, GL_FLOAT, 2*sizeof(float), v);
    color_ptr_on(d, 4, GL_FLOAT, 4*sizeof(float), c);
 
+#ifndef ALLEGRO_CFG_OPENGLES2_ONLY
    if (!(d->flags & ALLEGRO_PROGRAMMABLE_PIPELINE)) {
       glDisableClientState(GL_NORMAL_ARRAY);
       glDisableClientState(GL_TEXTURE_COORD_ARRAY);
    }
+#endif
 
    glDisable(GL_TEXTURE_2D);
    glBindTexture(GL_TEXTURE_2D, 0);
@@ -442,8 +456,10 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY *disp)
       color_ptr_on(disp, 4, GL_FLOAT, sizeof(ALLEGRO_OGL_BITMAP_VERTEX),
          (char*)(disp->vertex_cache) + offsetof(ALLEGRO_OGL_BITMAP_VERTEX, r));
 
+#ifndef ALLEGRO_CFG_OPENGLES2_ONLY
       if (!(disp->flags & ALLEGRO_PROGRAMMABLE_PIPELINE))
          glDisableClientState(GL_NORMAL_ARRAY);
+#endif
    }
 
    glGetError(); /* clear error */
@@ -505,12 +521,15 @@ static void ogl_update_transformation(ALLEGRO_DISPLAY* disp,
          _al_glsl_set_projview_matrix(loc, &disp->projview_transform);
       }
 #endif
-   } else {
+   }
+#ifndef ALLEGRO_CFG_OPENGLES2_ONLY
+   else {
       glMatrixMode(GL_PROJECTION);
       glLoadMatrixf((float *)target->proj_transform.m);
       glMatrixMode(GL_MODELVIEW);
       glLoadMatrixf((float *)target->transform.m);
    }
+#endif
 
    if (target->parent) {
       ALLEGRO_BITMAP_EXTRA_OPENGL *ogl_extra = target->parent->extra;

@@ -131,6 +131,17 @@ set(ALLEGRO_SRC_X_FILES
     src/linux/ljoynu.c
     )
 
+set(ALLEGRO_SRC_MIR_FILES
+    src/mir/mirdisplay.c
+    src/mir/mirtouch.c
+    src/mir/mirkeyboard.c
+    src/mir/mirmouse.c
+    src/mir/mirsystem.c
+    src/mir/mirevents.c
+    src/linux/lhaptic.c
+    src/linux/ljoynu.c
+    )
+
 set(ALLEGRO_SRC_MACOSX_FILES
     src/macosx/hidjoy.m
     src/macosx/hidjoy-10.4.m
@@ -297,6 +308,8 @@ set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES
     include/allegro5/platform/alosxcfg.h
     include/allegro5/platform/alraspberrypi.h
     include/allegro5/platform/alraspberrypicfg.h
+    include/allegro5/platform/almir.h
+    include/allegro5/platform/almircfg.h
     include/allegro5/platform/alucfg.h
     include/allegro5/platform/alunix.h
     include/allegro5/platform/alwatcom.h

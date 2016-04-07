@@ -94,6 +94,22 @@
 #define glDeleteFramebuffersEXT glDeleteFramebuffers
 #endif
 
+#elif defined ALLEGRO_UBUNTU_TOUCH
+
+#include <EGL/egl.h>
+#include <EGL/eglext.h>
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
+
+#define GL_FRAMEBUFFER_BINDING_EXT GL_FRAMEBUFFER_BINDING
+#define GL_FRAMEBUFFER_EXT GL_FRAMEBUFFER
+#define glBlendEquation glBlendEquation
+#define glBlendFuncSeparate glBlendFuncSeparate
+#define glBlendEquationSeparate glBlendEquationSeparate
+#define glGenerateMipmapEXT glGenerateMipmap
+#define glBindFramebufferEXT glBindFramebuffer
+#define glDeleteFramebuffersEXT glDeleteFramebuffers
+
 #else /* ALLEGRO_MACOSX */
 
 /* HACK: Prevent both Mesa and SGI's broken headers from screwing us */
