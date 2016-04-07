@@ -26,6 +26,8 @@
 #else
 #include "allegro5/internal/aintern_raspberrypi.h"
 #endif
+#elif defined ALLEGRO_MIR
+#include "allegro5/platform/aintmir.h"
 #endif
 
 
@@ -42,6 +44,9 @@ void _al_register_system_interfaces(void)
 #elif defined ALLEGRO_RASPBERRYPI
    add = _al_vector_alloc_back(&_al_system_interfaces);
    *add = _al_system_raspberrypi_driver();
+#elif defined ALLEGRO_MIR
+   add = _al_vector_alloc_back(&_al_system_interfaces);
+   *add = _al_system_mir_driver();
 #endif
 }
 

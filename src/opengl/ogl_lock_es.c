@@ -570,13 +570,13 @@ static void ogl_unlock_region_nonbb_2(ALLEGRO_BITMAP *bitmap,
    GLint fbo;
    GLenum e;
 
-#ifdef ALLEGRO_ANDROID
+#if defined ALLEGRO_ANDROID
    fbo = _al_android_get_curr_fbo();
 #else
    glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT, &fbo);
 #endif
    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-#ifdef ALLEGRO_ANDROID
+#if defined ALLEGRO_ANDROID
    _al_android_set_curr_fbo(0);
 #endif
 
@@ -602,7 +602,7 @@ static void ogl_unlock_region_nonbb_2(ALLEGRO_BITMAP *bitmap,
    }
 
    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
-#ifdef ALLEGRO_ANDROID
+#if defined ALLEGRO_ANDROID
    _al_android_set_curr_fbo(fbo);
 #endif
 }

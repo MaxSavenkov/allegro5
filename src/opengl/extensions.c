@@ -31,6 +31,7 @@
 #if defined ALLEGRO_WINDOWS
    #include "../win/wgl.h"
 #elif defined ALLEGRO_UNIX && !defined ALLEGRO_EXCLUDE_GLX
+#error "ALLEGRO_EXCLUDE_GLX not defined!"
    #include "allegro5/internal/aintern_xdisplay.h"
    #include "allegro5/internal/aintern_xsystem.h"
 #endif
@@ -58,7 +59,7 @@ ALLEGRO_DEBUG_CHANNEL("opengl")
     */
    #if defined ALLEGRO_GLXGETPROCADDRESSARB
       #define alXGetProcAddress glXGetProcAddressARB
-   #elif defined ALLEGRO_RASPBERRYPI
+   #elif defined ALLEGRO_RASPBERRYPI || defined ALLEGRO_UBUNTU_TOUCH
       #define alXGetProcAddress eglGetProcAddress
    #else
       #define alXGetProcAddress glXGetProcAddress
@@ -618,7 +619,7 @@ void *al_get_opengl_proc_address(const char *name)
        * address. Unfortunately glXGetProcAddress is an extension
        * and may not be available on all platforms
        */
-#if defined ALLEGRO_RASPBERRYPI
+#if defined ALLEGRO_RASPBERRYPI || defined ALLEGRO_UBUNTU_TOUCH
       symbol = alXGetProcAddress(name);
 #else
       symbol = alXGetProcAddress((const GLubyte *)name);

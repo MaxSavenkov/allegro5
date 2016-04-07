@@ -6,6 +6,8 @@
 #cmakedefine ALLEGRO_BCC32
 #cmakedefine ALLEGRO_IPHONE
 #cmakedefine ALLEGRO_ANDROID
+#cmakedefine ALLEGRO_UBUNTU_TOUCH
+#cmakedefine ALLEGRO_MIR
 #cmakedefine ALLEGRO_RASPBERRYPI
 #cmakedefine ALLEGRO_CFG_NO_FPU
 #cmakedefine ALLEGRO_CFG_DLL_TLS
@@ -19,6 +21,7 @@
 #cmakedefine ALLEGRO_CFG_OPENGL
 #cmakedefine ALLEGRO_CFG_OPENGLES
 #cmakedefine ALLEGRO_CFG_OPENGLES2
+#cmakedefine ALLEGRO_CFG_OPENGLES2_ONLY
 #cmakedefine ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE
 #cmakedefine ALLEGRO_CFG_SHADER_GLSL
 #cmakedefine ALLEGRO_CFG_SHADER_HLSL

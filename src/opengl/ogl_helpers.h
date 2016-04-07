@@ -32,18 +32,22 @@
    #define IS_RASPBERRYPI     (false)
 #endif
 
-#if defined(ALLEGRO_ANDROID) || defined(ALLEGRO_RASPBERRYPI)
+#if defined(ALLEGRO_ANDROID) || defined(ALLEGRO_RASPBERRYPI) || defined(ALLEGRO_CFG_OPENGLES2_ONLY)
    #define UNLESS_ANDROID_OR_RPI(x) (0)
 #else
    #define UNLESS_ANDROID_OR_RPI(x) (x)
 #endif
 
 /* Android uses different functions/symbol names depending on ES version */
-#define ANDROID_PROGRAMMABLE_PIPELINE(dpy) \
-   IS_ANDROID_AND(al_get_display_flags(dpy) & ALLEGRO_PROGRAMMABLE_PIPELINE)
+#ifdef ALLEGRO_CFG_OPENGLES2_ONLY
+    #define ANDROID_PROGRAMMABLE_PIPELINE(dpy) true
+#else
+    #define ANDROID_PROGRAMMABLE_PIPELINE(dpy) \
+       IS_ANDROID_AND(al_get_display_flags(dpy) & ALLEGRO_PROGRAMMABLE_PIPELINE)
+#endif
 
 /* XXX still hacky */
-#if defined ALLEGRO_RASPBERRYPI
+#if defined ALLEGRO_RASPBERRYPI || defined ALLEGRO_UBUNTU_TOUCH
    #define GL_COLOR_ATTACHMENT0_EXT    GL_COLOR_ATTACHMENT0
    #define GL_FRAMEBUFFER_BINDING_EXT  GL_FRAMEBUFFER_BINDING
    #define GL_FRAMEBUFFER_COMPLETE_EXT GL_FRAMEBUFFER_COMPLETE
@@ -56,10 +60,12 @@
    #define glGenerateMipmapEXT         glGenerateMipmap
    #define glOrtho                     glOrthof
 #elif defined ALLEGRO_CFG_OPENGLES
-   #define GL_COLOR_ATTACHMENT0_EXT    GL_COLOR_ATTACHMENT0_OES
-   #define GL_FRAMEBUFFER_BINDING_EXT  GL_FRAMEBUFFER_BINDING_OES
-   #define GL_FRAMEBUFFER_COMPLETE_EXT GL_FRAMEBUFFER_COMPLETE_OES
-   #define GL_FRAMEBUFFER_EXT          GL_FRAMEBUFFER_OES
+   #ifndef ALLEGRO_CFG_OPENGLES2_ONLY
+      #define GL_COLOR_ATTACHMENT0_EXT    GL_COLOR_ATTACHMENT0_OES
+      #define GL_FRAMEBUFFER_BINDING_EXT  GL_FRAMEBUFFER_BINDING_OES
+      #define GL_FRAMEBUFFER_COMPLETE_EXT GL_FRAMEBUFFER_COMPLETE_OES
+      #define GL_FRAMEBUFFER_EXT          GL_FRAMEBUFFER_OES
+   #endif
    #define glBindFramebufferEXT        glBindFramebufferOES
    #define glCheckFramebufferStatusEXT glCheckFramebufferStatusOES
    #define glDeleteFramebuffersEXT     glDeleteFramebuffersOES

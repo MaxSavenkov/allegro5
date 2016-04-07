@@ -12,7 +12,7 @@
 #
 #-----------------------------------------------------------------------------#
 
-cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.8.9 FATAL_ERROR)
 if(COMMAND cmake_policy)
     cmake_policy(SET CMP0003 NEW)
     if(POLICY CMP0026)
@@ -36,6 +36,10 @@ if(WANT_ANDROID)
     include(${CMAKE_SOURCE_DIR}/cmake/Toolchain-android.cmake)
     set(ANDROID_TARGET "android-12" CACHE STRING "What Android target to compile for.")
 endif(WANT_ANDROID)
+option(WANT_UBUNTU_TOUCH "Build for Ubuntu Touch" OFF)
+if(WANT_UBUNTU_TOUCH)
+    set(UBUNTU_TOUCH 1)
+endif(WANT_UBUNTU_TOUCH)
 option(ALLEGRO_SDL "Build using the SDL backend (experimental)" OFF)
 option(WANT_STATIC_RUNTIME "Whether or not to link the C and C++ runtimes statically (currently only implemented for MSVC)" OFF)
 
@@ -114,6 +118,7 @@ option(WANT_X11 "X11 support" on)
 option(WANT_X11_XF86VIDMODE "X11 XF86VidMode Extension support" on)
 option(WANT_X11_XINERAMA "X11 Xinerama Extension support" on)
 option(WANT_X11_XRANDR "X11 XRandR Extension support" on)
+option(WANT_MIR "Mir support" off)
 option(WANT_D3D "Enable Direct3D graphics driver (Windows)" on)
 option(WANT_D3D9EX "Enable Direct3D 9Ex extensions (Vista)" off)
 option(WANT_OPENGL "Enable OpenGL graphics driver (Windows, X11, OS X))" on)
@@ -317,6 +322,16 @@ if(ANDROID)
    set(WANT_X11 off)
 endif(ANDROID)
 
+if(UBUNTU_TOUCH)
+    set(ALLEGRO_UBUNTU_TOUCH 1)
+    set(WANT_X11 off)
+    set(WANT_GLES off)
+    set(WANT_GLES2 on)
+    set(WANT_MIR on)
+    set(WANT_ALLOW_SSE off)
+    set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+endif()
+
 if(ALLEGRO_RASPBERRYPI)
     set(ALLEGRO_CFG_PTHREADS_TLS 1)
 endif(ALLEGRO_RASPBERRYPI)
@@ -438,7 +453,7 @@ include(FindPkgConfig)
 
 include(TestBigEndian)
 
-if(NOT IPHONE)
+if(NOT IPHONE AND NOT UBUNTU_TOUCH)
     test_big_endian(ALLEGRO_BIG_ENDIAN)
 endif(NOT IPHONE)
 
@@ -542,6 +557,10 @@ if(WANT_OPENGL)
         find_package(OpenGLES2)
     endif(ANDROID)
 
+    if(UBUNTU_TOUCH)
+        find_package(OpenGLES2)
+    endif(UBUNTU_TOUCH)
+
     # on cmake 2.8.1 OpenGL ES is not found in the iphone case
     # XXX incorporate IPHONE case into FindOpenGLES/2
     if(IPHONE)
@@ -566,6 +585,14 @@ if(WANT_OPENGL)
         set(ALLEGRO_CFG_OPENGL 1)
         # We assume that the OpenGL library is not very old.
         set(ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE 1)
+    elseif(OPENGLES2_FOUND) # Ubuntu Touch only supports OpenGL ES2
+        set(SUPPORT_OPENGL 1)
+        set(ALLEGRO_CFG_OPENGL 1)
+        set(ALLEGRO_CFG_OPENGLES 1)
+        set(ALLEGRO_CFG_OPENGLES2 1)
+        set(ALLEGRO_CFG_OPENGLES2_ONLY 1)
+        set(ALLEGRO_CFG_OPENGL_PROGRAMMABLE_PIPELINE 1)
+        list(APPEND OPENGL_LIBRARIES ${OPENGLES2_LIBRARIES})
     endif()
 endif(WANT_OPENGL)
 
@@ -602,10 +629,23 @@ if(WANT_X11)
     endif(X11_FOUND)
 endif(WANT_X11)
 
+if(WANT_MIR)
+    find_package(Mir)
+    if(MIR_FOUND)
+        set(SUPPORT_MIR 1)
+        set(ALLEGRO_MIR 1)
+    endif(MIR_FOUND)
+endif(WANT_MIR)
+
 if(ALLEGRO_UNIX AND NOT SUPPORT_X11 AND WANT_X11) # not MACOSX
     message(FATAL_ERROR
         "X11 not found. You may need to install X11 development libraries.")
 endif(ALLEGRO_UNIX AND NOT SUPPORT_X11 AND WANT_X11)
+
+if(UBUNTU_TOUCH AND NOT SUPPORT_MIR)
+    message(FATAL_ERROR
+        "Ubuntu Touch requires Mir.")
+endif(UBUNTU_TOUCH AND NOT SUPPORT_MIR)
 
 if((NOT ALLEGRO_RASPBERRYPI) AND (SUPPORT_X11 AND NOT SUPPORT_OPENGL))
     message(FATAL_ERROR "X11 support currently requires OpenGL support.")
@@ -753,6 +793,12 @@ if(SUPPORT_X11 AND NOT ALLEGRO_RASPBERRYPI)
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_X_FILES})
     list(APPEND PLATFORM_LIBS ${X11_LIBRARIES})
 endif(SUPPORT_X11 AND NOT ALLEGRO_RASPBERRYPI)
+
+if(SUPPORT_MIR)
+    include_directories( ${MIR_INCLUDE_DIR} )
+    list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_MIR_FILES})
+    list(APPEND PLATFORM_LIBS ${MIR_LIBRARIES})
+endif(SUPPORT_MIR)
 
 if(WIN32)
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_WIN_FILES})

@@ -81,8 +81,8 @@ GLint _al_ogl_bind_framebuffer(GLint fbo)
 GLint _al_ogl_bind_framebuffer(GLint fbo)
 {
    GLint old_fbo;
-   glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT, &old_fbo);
-   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
+   glGetIntegerv(GL_FRAMEBUFFER_BINDING, &old_fbo);
+   glBindFramebuffer(GL_FRAMEBUFFER, fbo);
    return old_fbo;
 }
 
@@ -125,7 +125,7 @@ bool _al_ogl_create_persistent_fbo(ALLEGRO_BITMAP *bitmap)
       glGenFramebuffers(1, &info->fbo);
    }
    else {
-      glGenFramebuffersEXT(1, &info->fbo);
+      glGenFramebuffers(1, &info->fbo);
    }
    if (info->fbo == 0) {
       al_free(info);
@@ -134,14 +134,19 @@ bool _al_ogl_create_persistent_fbo(ALLEGRO_BITMAP *bitmap)
 
    old_fbo = _al_ogl_bind_framebuffer(info->fbo);
 
-   if (ANDROID_PROGRAMMABLE_PIPELINE(al_get_current_display())) {
+#ifndef ALLEGRO_CFG_OPENGLES2_ONLY
+   if (ANDROID_PROGRAMMABLE_PIPELINE(al_get_current_display()))
+#endif
+   {
       glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
          GL_TEXTURE_2D, ogl_bitmap->texture, 0);
    }
+#ifndef ALLEGRO_CFG_OPENGLES2_ONLY
    else {
       glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
          GL_TEXTURE_2D, ogl_bitmap->texture, 0);
    }
+#endif
 
    e = glGetError();
    if (e) {
@@ -152,12 +157,13 @@ bool _al_ogl_create_persistent_fbo(ALLEGRO_BITMAP *bitmap)
    /* You'll see this a couple times in this file: some ES 1.1 functions aren't
     * implemented on Android. This is an ugly workaround.
     */
+
    if (UNLESS_ANDROID_OR_RPI(
          glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) != GL_FRAMEBUFFER_COMPLETE_EXT))
    {
       ALLEGRO_ERROR("FBO incomplete.\n");
       _al_ogl_bind_framebuffer(old_fbo);
-      glDeleteFramebuffersEXT(1, &info->fbo);
+      glDeleteFramebuffers(1, &info->fbo);
       al_free(info);
       return false;
    }
@@ -232,7 +238,7 @@ static ALLEGRO_FBO_INFO *ogl_new_fbo(ALLEGRO_DISPLAY *display)
          glDeleteFramebuffers(1, &info->fbo);
       }
       else {
-         glDeleteFramebuffersEXT(1, &info->fbo);
+         glDeleteFramebuffers(1, &info->fbo);
       }
       _al_ogl_reset_fbo_info(info);
    }
@@ -244,7 +250,7 @@ static ALLEGRO_FBO_INFO *ogl_new_fbo(ALLEGRO_DISPLAY *display)
       glGenFramebuffers(1, &info->fbo);
    }
    else {
-      glGenFramebuffersEXT(1, &info->fbo);
+      glGenFramebuffers(1, &info->fbo);
    }
    e = glGetError();
    if (e) {
@@ -352,10 +358,12 @@ static void use_fbo_for_bitmap(ALLEGRO_DISPLAY *display,
       glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
          GL_TEXTURE_2D, ogl_bitmap->texture, 0);
    }
+#ifndef ALLEGRO_CFG_OPENGLES2_ONLY
    else {
       glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
          GL_TEXTURE_2D, ogl_bitmap->texture, 0);
    }
+#endif
    e = glGetError();
    if (e) {
       ALLEGRO_DEBUG("glFrameBufferTexture2DEXT failed! fbo=%d texture=%d (%s)\n",
